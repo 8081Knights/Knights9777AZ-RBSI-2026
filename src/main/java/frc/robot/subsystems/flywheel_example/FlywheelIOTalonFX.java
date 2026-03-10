@@ -17,12 +17,10 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.OpenLoopRampsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -37,20 +35,14 @@ import frc.robot.util.RBSIEnum.CTREPro;
 public class FlywheelIOTalonFX implements FlywheelIO {
 
   // Define the leader / follower motors from the Ports section of RobotContainer
-  private final TalonFX leader =
-      new TalonFX(FLYWHEEL_LEADER.getDeviceNumber(), FLYWHEEL_LEADER.getCANBus());
-  private final TalonFX follower =
-      new TalonFX(FLYWHEEL_FOLLOWER.getDeviceNumber(), FLYWHEEL_FOLLOWER.getCANBus());
+  private final TalonFX leader = new TalonFX(FLYWHEEL.getDeviceNumber(), FLYWHEEL.getCANBus());
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
-  public final int[] powerPorts = {
-    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort()
-  };
+  public final int[] powerPorts = {FLYWHEEL.getPowerPort()};
 
   private final StatusSignal<Angle> leaderPosition = leader.getPosition();
   private final StatusSignal<AngularVelocity> leaderVelocity = leader.getVelocity();
   private final StatusSignal<Voltage> leaderAppliedVolts = leader.getMotorVoltage();
   private final StatusSignal<Current> leaderCurrent = leader.getSupplyCurrent();
-  private final StatusSignal<Current> followerCurrent = follower.getSupplyCurrent();
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final boolean isCTREPro = Constants.getPhoenixPro() == CTREPro.LICENSED;
@@ -82,27 +74,22 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
     // Apply the configurations to the flywheel motors
     PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
-    PhoenixUtil.tryUntilOk(5, () -> follower.getConfigurator().apply(config, 0.25));
     // If follower rotates in the opposite direction, set "MotorAlignmentValue" to Opposed
-    follower.setControl(new Follower(leader.getDeviceID(), MotorAlignmentValue.Aligned));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
+        50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
     leader.optimizeBusUtilization();
-    follower.optimizeBusUtilization();
   }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    BaseStatusSignal.refreshAll(
-        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerCurrent);
+    BaseStatusSignal.refreshAll(leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
     inputs.positionRad =
         Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / kFlywheelGearRatio;
     inputs.velocityRadPerSec =
         Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / kFlywheelGearRatio;
     inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
-    inputs.currentAmps =
-        new double[] {leaderCurrent.getValueAsDouble(), followerCurrent.getValueAsDouble()};
+    inputs.currentAmps = new double[] {leaderCurrent.getValueAsDouble()};
   }
 
   @Override

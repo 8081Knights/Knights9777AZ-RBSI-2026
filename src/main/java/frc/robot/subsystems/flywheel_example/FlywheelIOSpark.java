@@ -26,7 +26,6 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -45,15 +44,15 @@ import org.littletonrobotics.junction.Logger;
 public class FlywheelIOSpark implements FlywheelIO {
 
   // Define the leader / follower motors from the RobotDevices section of RobotContainer
-  private final SparkMax leader =
-      new SparkMax(FLYWHEEL_LEADER.getDeviceNumber(), MotorType.kBrushless);
-  private final SparkMax follower =
-      new SparkMax(FLYWHEEL_FOLLOWER.getDeviceNumber(), MotorType.kBrushless);
+  private final SparkMax leader = null;
+  //     new SparkMax(FLYWHEEL_LEADER.getDeviceNumber(), MotorType.kBrushless);
+  private final SparkMax follower = null;
+  // new SparkMax(FLYWHEEL_FOLLOWER.getDeviceNumber(), MotorType.kBrushless);
   private final RelativeEncoder encoder = leader.getEncoder();
   private final SparkClosedLoopController pid = leader.getClosedLoopController();
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {
-    FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort()
+    // FLYWHEEL_LEADER.getPowerPort(), FLYWHEEL_FOLLOWER.getPowerPort()
   };
   private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kSreal, kVreal, kAreal);
 

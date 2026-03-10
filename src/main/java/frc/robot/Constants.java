@@ -72,8 +72,8 @@ public final class Constants {
   //       via GitHub issues.
   private static SwerveType swerveType = SwerveType.PHOENIX6; // PHOENIX6, YAGSL
   private static CTREPro phoenixPro = CTREPro.UNLICENSED; // LICENSED, UNLICENSED
-  private static AutoType autoType = AutoType.MANUAL; // MANUAL, PATHPLANNER, CHOREO
-  private static VisionType visionType = VisionType.NONE; // PHOTON, LIMELIGHT, NONE
+  private static AutoType autoType = AutoType.PATHPLANNER; // MANUAL, PATHPLANNER, CHOREO
+  private static VisionType visionType = VisionType.LIMELIGHT; // PHOTON, LIMELIGHT, NONE
 
   /** Enumerate the robot types (name your robots here) */
   public static enum RobotType {
@@ -180,41 +180,53 @@ public final class Constants {
 
     // Front Left
     public static final RobotDeviceId FL_DRIVE =
-        new RobotDeviceId(SwerveConstants.kFLDriveMotorId, SwerveConstants.kFLDriveCanbus, 18);
+        new RobotDeviceId(SwerveConstants.kFLDriveMotorId, SwerveConstants.kFLDriveCanbus, 15);
     public static final RobotDeviceId FL_ROTATION =
-        new RobotDeviceId(SwerveConstants.kFLSteerMotorId, SwerveConstants.kFLSteerCanbus, 19);
+        new RobotDeviceId(SwerveConstants.kFLSteerMotorId, SwerveConstants.kFLSteerCanbus, 12);
+
+    // TODO: figure out what mini pdh ports go to
+    // power port is 1 on mini pdh
     public static final RobotDeviceId FL_CANCODER =
-        new RobotDeviceId(SwerveConstants.kFLEncoderId, SwerveConstants.kFLEncoderCanbus, null);
+        new RobotDeviceId(SwerveConstants.kFLEncoderId, SwerveConstants.kFLEncoderCanbus, 15);
     // Front Right
     public static final RobotDeviceId FR_DRIVE =
-        new RobotDeviceId(SwerveConstants.kFRDriveMotorId, SwerveConstants.kFRDriveCanbus, 17);
+        new RobotDeviceId(SwerveConstants.kFRDriveMotorId, SwerveConstants.kFRDriveCanbus, 8);
     public static final RobotDeviceId FR_ROTATION =
-        new RobotDeviceId(SwerveConstants.kFRSteerMotorId, SwerveConstants.kFRSteerCanbus, 16);
+        new RobotDeviceId(SwerveConstants.kFRSteerMotorId, SwerveConstants.kFRSteerCanbus, 7);
     public static final RobotDeviceId FR_CANCODER =
-        new RobotDeviceId(SwerveConstants.kFREncoderId, SwerveConstants.kFREncoderCanbus, null);
+        new RobotDeviceId(SwerveConstants.kFREncoderId, SwerveConstants.kFREncoderCanbus, 22);
     // Back Left
     public static final RobotDeviceId BL_DRIVE =
-        new RobotDeviceId(SwerveConstants.kBLDriveMotorId, SwerveConstants.kBLDriveCanbus, 1);
+        new RobotDeviceId(SwerveConstants.kBLDriveMotorId, SwerveConstants.kBLDriveCanbus, 0);
     public static final RobotDeviceId BL_ROTATION =
-        new RobotDeviceId(SwerveConstants.kBLSteerMotorId, SwerveConstants.kBLSteerCanbus, 0);
+        new RobotDeviceId(SwerveConstants.kBLSteerMotorId, SwerveConstants.kBLSteerCanbus, 2);
+    // TODO: get this power port too
+    // 2 on mini pdh
     public static final RobotDeviceId BL_CANCODER =
-        new RobotDeviceId(SwerveConstants.kBLEncoderId, SwerveConstants.kBLEncoderCanbus, null);
+        new RobotDeviceId(SwerveConstants.kBLEncoderId, SwerveConstants.kBLEncoderCanbus, 21);
     // Back Right
     public static final RobotDeviceId BR_DRIVE =
-        new RobotDeviceId(SwerveConstants.kBRDriveMotorId, SwerveConstants.kBRSteerCanbus, 2);
+        new RobotDeviceId(SwerveConstants.kBRDriveMotorId, SwerveConstants.kBRSteerCanbus, 6);
     public static final RobotDeviceId BR_ROTATION =
-        new RobotDeviceId(SwerveConstants.kBRSteerMotorId, SwerveConstants.kBRSteerCanbus, 3);
+        new RobotDeviceId(SwerveConstants.kBRSteerMotorId, SwerveConstants.kBRSteerCanbus, 1);
     public static final RobotDeviceId BR_CANCODER =
-        new RobotDeviceId(SwerveConstants.kBREncoderId, SwerveConstants.kBREncoderCanbus, null);
-    // Pigeon
+        new RobotDeviceId(SwerveConstants.kBREncoderId, SwerveConstants.kBREncoderCanbus, 23);
+    //
+    // 0 on mini pdh
+    // TODO: this too
     public static final RobotDeviceId PIGEON =
-        new RobotDeviceId(SwerveConstants.kPigeonId, SwerveConstants.kCANbusName, null);
+        new RobotDeviceId(SwerveConstants.kPigeonId, SwerveConstants.kCANbusName, 0);
 
     /* SUBSYSTEM CAN DEVICE IDS */
     // This is where mechanism subsystem devices are defined (Including ID, bus, and power port)
     // Example:
-    public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(3, CANBuses.RIO, 8);
-    public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(4, CANBuses.RIO, 9);
+    // public static final RobotDeviceId FLYWHEEL_LEADER = new RobotDeviceId(3, CANBuses.RIO, 8);
+    // public static final RobotDeviceId FLYWHEEL_FOLLOWER = new RobotDeviceId(4, CANBuses.RIO, 9);
+
+    public static final RobotDeviceId FLYWHEEL = new RobotDeviceId(8, CANBuses.RIO, 3);
+    public static final RobotDeviceId FLYWHEEL_FEEDER = new RobotDeviceId(5, CANBuses.RIO, 19);
+
+    public static final RobotDeviceId INTAKE_MOTOR = new RobotDeviceId(9, CANBuses.RIO, 10);
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
