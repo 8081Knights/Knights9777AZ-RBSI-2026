@@ -226,7 +226,10 @@ public final class Constants {
     public static final RobotDeviceId FLYWHEEL = new RobotDeviceId(8, CANBuses.RIO, 3);
     public static final RobotDeviceId FLYWHEEL_FEEDER = new RobotDeviceId(5, CANBuses.RIO, 19);
 
-    public static final RobotDeviceId INTAKE_MOTOR = new RobotDeviceId(9, CANBuses.RIO, 10);
+    public static final RobotDeviceId INTAKE = new RobotDeviceId(9, CANBuses.RIO, 10);
+
+    public static final RobotDeviceId HANG = new RobotDeviceId(7, CANBuses.RIO, 4);
+
 
     /* BEAM BREAK and/or LIMIT SWITCH DIO CHANNELS */
     // This is where digital I/O feedback devices are defined
@@ -377,6 +380,37 @@ public final class Constants {
   // public static class Mechanism1Constants {}
   // public static class Mechanism2Constants {}
   // ...
+
+  public static final class IntakeConstants {
+    // Mechanism idle mode
+    public static final MotorIdleMode kIntakeIdleMode = MotorIdleMode.COAST; // BRAKE, COAST
+
+    // Mechanism motor gear ratio
+    public static final double kIntakeGearRatio = 1.5;
+
+    // Intake motor open-loop and closed-loop ramp periods for current smoothing
+    //   Time from from 0 -> full duty
+    public static final double kIntakeClosedLoopRampPeriod = 0.15; // seconds
+    public static final double kIntakeOpenLoopRampPeriod = 0.25; // seconds
+
+    // MODE == REAL / REPLAY
+    // Feedforward constants
+    public static final double kSreal = 0.1;
+    public static final double kVreal = 0.05;
+    public static final double kAreal = 0.0;
+    // Feedback (PID) constants
+    public static final double kPreal = 1.0;
+    public static final double kDreal = 0.0;
+
+    // MODE == SIM
+    // Feedforward constants
+    public static final double kSsim = 0.0;
+    public static final double kVsim = 0.03;
+    public static final double kAsim = 0.0;
+    // Feedback (PID) constants
+    public static final double kPsim = 0.0;
+    public static final double kDsim = 0.0;
+  }
 
   /************************************************************************* */
   /** (Semi-)Autonomous Action Constants *********************************** */

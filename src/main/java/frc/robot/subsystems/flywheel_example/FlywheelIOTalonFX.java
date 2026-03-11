@@ -35,14 +35,14 @@ import frc.robot.util.RBSIEnum.CTREPro;
 public class FlywheelIOTalonFX implements FlywheelIO {
 
   // Define the leader / follower motors from the Ports section of RobotContainer
-  private final TalonFX leader = new TalonFX(FLYWHEEL.getDeviceNumber(), FLYWHEEL.getCANBus());
+  private final TalonFX shooter = new TalonFX(FLYWHEEL.getDeviceNumber(), FLYWHEEL.getCANBus());
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {FLYWHEEL.getPowerPort()};
 
-  private final StatusSignal<Angle> leaderPosition = leader.getPosition();
-  private final StatusSignal<AngularVelocity> leaderVelocity = leader.getVelocity();
-  private final StatusSignal<Voltage> leaderAppliedVolts = leader.getMotorVoltage();
-  private final StatusSignal<Current> leaderCurrent = leader.getSupplyCurrent();
+  private final StatusSignal<Angle> leaderPosition = shooter.getPosition();
+  private final StatusSignal<AngularVelocity> leaderVelocity = shooter.getVelocity();
+  private final StatusSignal<Voltage> leaderAppliedVolts = shooter.getMotorVoltage();
+  private final StatusSignal<Current> leaderCurrent = shooter.getSupplyCurrent();
 
   private final TalonFXConfiguration config = new TalonFXConfiguration();
   private final boolean isCTREPro = Constants.getPhoenixPro() == CTREPro.LICENSED;
@@ -73,12 +73,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     motionMagicConfigs.MotionMagicJerk = 4000; // Target jerk of 4000 rps/s/s (0.1 seconds)
 
     // Apply the configurations to the flywheel motors
-    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> shooter.getConfigurator().apply(config, 0.25));
     // If follower rotates in the opposite direction, set "MotorAlignmentValue" to Opposed
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
-    leader.optimizeBusUtilization();
+    shooter.optimizeBusUtilization();
   }
 
   @Override
@@ -96,7 +96,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   public void setVoltage(double volts) {
     final MotionMagicVoltage m_request = new MotionMagicVoltage(volts);
     m_request.withEnableFOC(isCTREPro);
-    leader.setControl(m_request);
+    shooter.setControl(m_request);
   }
 
   @Override
@@ -104,7 +104,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     // create a Motion Magic Velocity request, voltage output
     final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
     m_request.withEnableFOC(isCTREPro);
-    leader.setControl(m_request.withVelocity(Units.radiansToRotations(velocityRadPerSec)));
+    shooter.setControl(m_request.withVelocity(Units.radiansToRotations(velocityRadPerSec)));
   }
 
   @Override
@@ -112,12 +112,12 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     // create a Motion Magic DutyCycle request, voltage output
     final MotionMagicDutyCycle m_request = new MotionMagicDutyCycle(percent);
     m_request.withEnableFOC(isCTREPro);
-    leader.setControl(m_request);
+    shooter.setControl(m_request);
   }
 
   @Override
   public void stop() {
-    leader.stopMotor();
+    shooter.stopMotor();
   }
 
   /**
@@ -137,7 +137,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.Slot0.kS = kS;
     config.Slot0.kV = kV;
     config.Slot0.kA = 0.0;
-    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> shooter.getConfigurator().apply(config, 0.25));
   }
 
   /**
@@ -158,6 +158,6 @@ public class FlywheelIOTalonFX implements FlywheelIO {
     config.Slot0.kS = kS;
     config.Slot0.kV = kV;
     config.Slot0.kA = kA;
-    PhoenixUtil.tryUntilOk(5, () -> leader.getConfigurator().apply(config, 0.25));
+    PhoenixUtil.tryUntilOk(5, () -> shooter.getConfigurator().apply(config, 0.25));
   }
 }

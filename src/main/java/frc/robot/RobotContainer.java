@@ -25,8 +25,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.PS4Controller;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -40,14 +38,18 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.FieldConstants.AprilTagLayoutType;
 import frc.robot.commands.AutopilotCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.RunIntake;
+import frc.robot.commands.StopIntake;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
 import frc.robot.subsystems.flywheel_example.Flywheel;
 import frc.robot.subsystems.flywheel_example.FlywheelIO;
-import frc.robot.subsystems.flywheel_example.FlywheelIOSim;
+import frc.robot.subsystems.flywheel_example.FlywheelIOTalonFX;
 import frc.robot.subsystems.imu.Imu;
 import frc.robot.subsystems.imu.ImuIOSim;
+import frc.robot.subsystems.hang.*;
+import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.vision.CameraSweepEvaluator;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -80,7 +82,7 @@ public class RobotContainer {
   // Replace with ``CommandPS4Controller`` or ``CommandJoystick`` if needed
   final CommandPS4Controller driverController = new CommandPS4Controller(0); // Main Driver
 
-  final PS4Controller operatorController = new PS4Controller(1); // Second Operator
+  final CommandPS4Controller operatorController = new CommandPS4Controller(1); // Second Operator
   final OverrideSwitches overrides = new OverrideSwitches(2); // Console toggle switches
 
   // These two are needed for the Sweep evaluator for camera FOV simulation
@@ -92,6 +94,11 @@ public class RobotContainer {
   private final Drive m_drivebase;
 
   private final Flywheel m_flywheel;
+
+  private final Intake m_intake;
+
+  private final Hang m_hang;
+
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -179,9 +186,12 @@ public class RobotContainer {
         m_imu = new Imu(SwerveConstants.kImu.factory.get());
 
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOSim()); // new Flywheel(new FlywheelIOTalonFX());
+        m_flywheel = new Flywheel(new FlywheelIOTalonFX()); // new Flywheel(new FlywheelIOTalonFX());
         m_vision = new Vision(m_drivebase::addVisionMeasurement, buildVisionIOsReal(m_drivebase));
         m_accel = new Accelerometer(m_imu);
+        m_intake = new Intake(new IntakeIOSparkFlex());
+        m_hang = new Hang(new HangIOSpark());
+
         sweep = null;
         break;
 
@@ -190,7 +200,10 @@ public class RobotContainer {
 
         m_imu = new Imu(new ImuIOSim());
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOSim());
+        m_flywheel = new Flywheel(new FlywheelIOTalonFX());
+        m_intake = new Intake(new IntakeIOSparkFlex());
+        m_hang = new Hang(new HangIOSpark());
+
 
         // ---------------- Vision IOs (robot code) ----------------
         var cams = frc.robot.Constants.Cameras.ALL;
@@ -234,6 +247,10 @@ public class RobotContainer {
         m_flywheel = new Flywheel(new FlywheelIO() {});
         m_vision = new Vision(m_drivebase::addVisionMeasurement, buildVisionIOsReplay());
         m_accel = new Accelerometer(m_imu);
+        m_intake = new Intake(new IntakeIOSparkFlex());
+        m_hang = new Hang(new HangIOSpark());
+
+
         sweep = null;
         break;
     }
@@ -354,22 +371,22 @@ public class RobotContainer {
                         () -> turnStickX.value()),
                 m_drivebase));
 
-    // Press A button -> BRAKE
+    // Press Square button -> BRAKE
     driverController
         .square()
         .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
 
-    // Press X button --> Stop with wheels in X-Lock position
+    // Press Cross button --> Stop with wheels in X-Lock position
     driverController.cross().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
 
-    // Press Y button --> Manually Re-Zero the Gyro
+    // Press Triangle button --> Manually Re-Zero the Gyro
     driverController
         .triangle()
         .onTrue(
             Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
                 .ignoringDisable(true));
 
-    // Press RIGHT BUMPER --> Run the example flywheel
+    // Press Left Trigger --> Run the example flywheel
     driverController
         .L2()
         .whileTrue(
@@ -380,7 +397,7 @@ public class RobotContainer {
 
     // Press LEFT BUMPER --> Drive to a pose 10 feet closer to the BLUE ALLIANCE wall
     driverController
-        .R2()
+        .L1()
         .whileTrue(
             Commands.defer(
                 () -> {
@@ -400,6 +417,17 @@ public class RobotContainer {
                   return AutopilotCommands.runAutopilot(m_drivebase, pose);
                 },
                 Set.of(m_drivebase)));
+  
+
+
+    // press triangle to run the intake
+    operatorController.triangle().whileTrue(new RunIntake(m_intake));
+    operatorController.triangle().whileFalse(new StopIntake(m_intake));
+
+    // TODO: finish this, write commands for this
+    //start hang, or maybe make it so it continues hang while this is pressed
+    //operatorController.cross().whileTrue(new );
+
 
     // Press POV LEFT to nudge the robot left
     driverController
@@ -540,7 +568,7 @@ public class RobotContainer {
   /**
    * Example Choreo auto command
    *
-   * <p>NOTE: This would normally be in a spearate file.
+   * <p>NOTE: This would normally be in a separate file.
    */
   private AutoRoutine twoPieceAuto() {
     AutoRoutine routine = autoFactoryChoreo.newRoutine("twoPieceAuto");
