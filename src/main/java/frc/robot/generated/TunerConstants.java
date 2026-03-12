@@ -24,7 +24,7 @@ public class TunerConstants {
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   private static final Slot0Configs steerGains =
       new Slot0Configs()
-          .withKP(100)
+          .withKP(10)
           .withKI(0)
           .withKD(0.5)
           .withKS(0.1)
@@ -46,13 +46,13 @@ public class TunerConstants {
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
       DriveMotorArrangement.TalonFX_Integrated;
-  // The type of motor used for the drive motor
+  // The type of motor used for the steer motor
   private static final SteerMotorArrangement kSteerMotorType =
       SteerMotorArrangement.TalonFX_Integrated;
 
   // The remote sensor feedback type to use for the steer motors;
   // When not Pro-licensed, Fused*/Sync* automatically fall back to Remote*
-  private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.FusedCANcoder;
+  private static final SteerFeedbackType kSteerFeedbackType = SteerFeedbackType.RemoteCANcoder;
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot

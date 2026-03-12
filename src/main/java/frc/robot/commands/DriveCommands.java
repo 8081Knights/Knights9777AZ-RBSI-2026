@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.OperatorConstants;
@@ -57,6 +58,9 @@ public class DriveCommands {
           Translation2d linearVelocity =
               getLinearVelocity(xSupplier.getAsDouble(), ySupplier.getAsDouble());
           double omega = getOmega(omegaSupplier.getAsDouble());
+
+          SmartDashboard.putString(
+              "values", linearVelocity.getX() + " " + linearVelocity.getY() + " " + omega);
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =

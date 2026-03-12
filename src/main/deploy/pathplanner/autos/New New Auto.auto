@@ -5,9 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Consistancy Test"
+            "name": "run Intake"
           }
         }
       ]

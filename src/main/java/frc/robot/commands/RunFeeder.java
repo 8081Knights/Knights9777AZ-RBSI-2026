@@ -1,20 +1,20 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.feeder.Feeder;
 
-public class RunIntake extends Command {
+public class RunFeeder extends Command {
 
-  private final Intake intake;
+  private final Feeder feeder;
 
-  public RunIntake(Intake intake) {
-    this.intake = intake;
-    addRequirements(intake);
+  public RunFeeder(Feeder feeder) {
+    this.feeder = feeder;
+    addRequirements(feeder);
   }
 
   @Override
   public void execute() {
-    intake.runIntake();
+    feeder.runFeeder();
     System.out.println("intake running");
   }
 

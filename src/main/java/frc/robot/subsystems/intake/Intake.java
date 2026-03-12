@@ -1,8 +1,8 @@
 package frc.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.RBSISubsystem;
 
-public class Intake extends SubsystemBase {
+public class Intake extends RBSISubsystem {
   private final IntakeIOSparkFlex io;
 
   public Intake(IntakeIOSparkFlex io) {
@@ -19,5 +19,5 @@ public class Intake extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void rbsiPeriodic() {}
 }

@@ -36,6 +36,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
 
   // Define the leader / follower motors from the Ports section of RobotContainer
   private final TalonFX shooter = new TalonFX(FLYWHEEL.getDeviceNumber(), FLYWHEEL.getCANBus());
+
   // IMPORTANT: Include here all devices listed above that are part of this mechanism!
   public final int[] powerPorts = {FLYWHEEL.getPowerPort()};
 

@@ -12,8 +12,6 @@ public interface IntakeIO extends RBSIIO {
 
   public default void updateInputs(IntakeIOInputs io) {}
 
-  public default void setOutputExtender(double output) {}
-
   public default void setOutputRoller() {}
 
   public default void stopRoller() {}

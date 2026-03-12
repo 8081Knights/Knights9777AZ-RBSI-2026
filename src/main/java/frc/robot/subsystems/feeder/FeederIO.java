@@ -1,20 +1,22 @@
-package frc.robot.subsystems.hang;
+package frc.robot.subsystems.feeder;
 
 import frc.robot.util.RBSIIO;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface HangIO extends RBSIIO {
+public interface FeederIO extends RBSIIO {
 
   @AutoLog
-  public static class HangIOInputs {
+  public static class FeederIOInputs {
     public double[] supplyCurrent = new double[] {};
   }
 
-  public default void updateInputs(HangIOInputs io) {}
+  public default void updateInputs(FeederIOInputs io) {}
 
   public default void setOutputExtender(double output) {}
 
-  public default void setOutputRoller() {}
+  public default void setFeedRoller() {}
+
+  public default void setBlockRoller() {}
 
   public default void stopRoller() {}
 

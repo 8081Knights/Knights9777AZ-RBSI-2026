@@ -1,8 +1,8 @@
 package frc.robot.subsystems.hang;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.RBSISubsystem;
 
-public class Hang extends SubsystemBase {
+public class Hang extends RBSISubsystem {
   private final HangIOSpark io;
 
   public Hang(HangIOSpark io) {
@@ -19,5 +19,5 @@ public class Hang extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void rbsiPeriodic() {}
 }

@@ -113,7 +113,7 @@ public class SwerveConstants {
         kCoupleRatio = TunerConstants.FrontLeft.CouplingGearRatio;
         kDriveGearRatio = TunerConstants.FrontLeft.DriveMotorGearRatio;
         kSteerGearRatio = TunerConstants.FrontLeft.SteerMotorGearRatio;
-        kCANbusName = CANBuses.DRIVE;
+        kCANbusName = CANBuses.RIO;
         kPigeonId = TunerConstants.DrivetrainConstants.Pigeon2Id;
         kSteerInertia = TunerConstants.FrontLeft.SteerInertia;
         kDriveInertia = TunerConstants.FrontLeft.DriveInertia;

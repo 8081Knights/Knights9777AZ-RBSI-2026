@@ -48,6 +48,7 @@ import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.PhoenixUtil;
 import frc.robot.util.RBSICANBusRegistry;
+import frc.robot.util.RBSIEnum.CTREPro;
 import java.util.Queue;
 import org.littletonrobotics.junction.Logger;
 
@@ -160,19 +161,25 @@ public class ModuleIOTalonFX implements ModuleIO {
             .withKV(DrivebaseConstants.kDriveV)
             .withKA(DrivebaseConstants.kDriveA);
     driveConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kDriveGearRatio;
-    driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = DrivebaseConstants.kSlipCurrent;
-    driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DrivebaseConstants.kSlipCurrent;
+    if (Constants.getPhoenixPro() == CTREPro.LICENSED) {
+      driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = DrivebaseConstants.kSlipCurrent;
+      driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = -DrivebaseConstants.kSlipCurrent;
+    }
     driveConfig.CurrentLimits.StatorCurrentLimit = SwerveConstants.kDriveCurrentLimit;
     driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     // Build the OpenLoopRampsConfigs and ClosedLoopRampsConfigs for current smoothing
     OpenLoopRampsConfigs openRamps = new OpenLoopRampsConfigs();
     openRamps.DutyCycleOpenLoopRampPeriod = DrivebaseConstants.kDriveOpenLoopRampPeriod;
     openRamps.VoltageOpenLoopRampPeriod = DrivebaseConstants.kDriveOpenLoopRampPeriod;
-    openRamps.TorqueOpenLoopRampPeriod = DrivebaseConstants.kDriveOpenLoopRampPeriod;
+    if (Constants.getPhoenixPro() == CTREPro.LICENSED) {
+      openRamps.TorqueOpenLoopRampPeriod = DrivebaseConstants.kDriveOpenLoopRampPeriod;
+    }
     ClosedLoopRampsConfigs closedRamps = new ClosedLoopRampsConfigs();
     closedRamps.DutyCycleClosedLoopRampPeriod = DrivebaseConstants.kDriveClosedLoopRampPeriod;
     closedRamps.VoltageClosedLoopRampPeriod = DrivebaseConstants.kDriveClosedLoopRampPeriod;
-    closedRamps.TorqueClosedLoopRampPeriod = DrivebaseConstants.kDriveClosedLoopRampPeriod;
+    if (Constants.getPhoenixPro() == CTREPro.LICENSED) {
+      closedRamps.TorqueClosedLoopRampPeriod = DrivebaseConstants.kDriveClosedLoopRampPeriod;
+    }
     // Apply the open- and closed-loop ramp configuration for current smoothing
     driveConfig.withClosedLoopRamps(closedRamps).withOpenLoopRamps(openRamps);
     // Set motor inversions
@@ -197,13 +204,19 @@ public class ModuleIOTalonFX implements ModuleIO {
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
     // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to RemoteCANcoder
-    turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    if (Constants.getPhoenixPro() == CTREPro.LICENSED) {
+      turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    } else {
+      turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+    }
     turnConfig.Feedback.RotorToSensorRatio = SwerveConstants.kSteerGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / SwerveConstants.kSteerGearRatio;
     turnConfig.MotionMagic.MotionMagicAcceleration =
         turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;
-    turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * SwerveConstants.kSteerGearRatio;
-    turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
+    if (Constants.getPhoenixPro() == CTREPro.LICENSED) {
+      turnConfig.MotionMagic.MotionMagicExpo_kV = 0.12 * SwerveConstants.kSteerGearRatio;
+      turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
+    }
     turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
     turnConfig.MotorOutput.Inverted =
         constants.SteerMotorInverted

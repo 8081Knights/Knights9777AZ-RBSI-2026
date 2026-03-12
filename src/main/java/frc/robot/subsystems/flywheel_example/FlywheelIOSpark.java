@@ -16,7 +16,6 @@
 package frc.robot.subsystems.flywheel_example;
 
 import static frc.robot.Constants.FlywheelConstants.*;
-import static frc.robot.Constants.RobotDevices.*;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -26,6 +25,7 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -46,7 +46,7 @@ public class FlywheelIOSpark implements FlywheelIO {
   // Define the leader / follower motors from the RobotDevices section of RobotContainer
   private final SparkMax leader = null;
   //     new SparkMax(FLYWHEEL_LEADER.getDeviceNumber(), MotorType.kBrushless);
-  private final SparkMax follower = null;
+  private final SparkFlex follower = null;
   // new SparkMax(FLYWHEEL_FOLLOWER.getDeviceNumber(), MotorType.kBrushless);
   private final RelativeEncoder encoder = leader.getEncoder();
   private final SparkClosedLoopController pid = leader.getClosedLoopController();

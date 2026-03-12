@@ -14,7 +14,7 @@ public class StopIntake extends Command {
   @Override
   public void execute() {
     intake.stopIntake();
-    System.out.println("first");
+    System.out.println("intake stopped");
   }
 
   @Override

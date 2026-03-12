@@ -18,13 +18,12 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -36,19 +35,22 @@ import frc.robot.Constants.CANBuses;
 import frc.robot.Constants.Cameras;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.FieldConstants.AprilTagLayoutType;
-import frc.robot.commands.AutopilotCommands;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.RunFeeder;
+import frc.robot.commands.RunFeederBackwards;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.StopIntake;
 import frc.robot.subsystems.accelerometer.Accelerometer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.SwerveConstants;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIOSpark;
 import frc.robot.subsystems.flywheel_example.Flywheel;
 import frc.robot.subsystems.flywheel_example.FlywheelIO;
 import frc.robot.subsystems.flywheel_example.FlywheelIOTalonFX;
+import frc.robot.subsystems.hang.*;
 import frc.robot.subsystems.imu.Imu;
 import frc.robot.subsystems.imu.ImuIOSim;
-import frc.robot.subsystems.hang.*;
 import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.vision.CameraSweepEvaluator;
 import frc.robot.subsystems.vision.Vision;
@@ -69,7 +71,6 @@ import frc.robot.util.RBSIEnum.Mode;
 import frc.robot.util.RBSIPowerMonitor;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -99,6 +100,7 @@ public class RobotContainer {
 
   private final Hang m_hang;
 
+  private final Feeder m_feeder;
 
   // ... Add additional subsystems here (e.g., elevator, arm, etc.)
 
@@ -167,6 +169,16 @@ public class RobotContainer {
     return new VisionIO[] {new VisionIO() {}};
   }
 
+  /** Use this method to define your Autonomous commands for use with PathPlanner / Choreo */
+  public void defineAutoCommands() {
+    NamedCommands.registerCommand("run Intake", new RunIntake(m_intake));
+    NamedCommands.registerCommand("stop Intake", new StopIntake(m_intake));
+    NamedCommands.registerCommand("run Feeder", new RunFeeder(m_feeder));
+    NamedCommands.registerCommand("run Feeder Backwards", new RunFeederBackwards(m_feeder));
+
+    // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
+  }
+
   /**
    * Constructor for the Robot Container. This container holds subsystems, opertator interface
    * devices, and commands.
@@ -179,31 +191,33 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
 
         // Register the CANBus
-        RBSICANBusRegistry.initReal(CANBuses.RIO, CANBuses.DRIVE);
+        RBSICANBusRegistry.initReal(CANBuses.RIO);
 
         // YAGSL drivebase, get config from deploy directory
         // Get the IMU instance
         m_imu = new Imu(SwerveConstants.kImu.factory.get());
 
         m_drivebase = new Drive(m_imu);
-        m_flywheel = new Flywheel(new FlywheelIOTalonFX()); // new Flywheel(new FlywheelIOTalonFX());
+        m_flywheel =
+            new Flywheel(new FlywheelIOTalonFX()); // new Flywheel(new FlywheelIOTalonFX());
         m_vision = new Vision(m_drivebase::addVisionMeasurement, buildVisionIOsReal(m_drivebase));
         m_accel = new Accelerometer(m_imu);
         m_intake = new Intake(new IntakeIOSparkFlex());
         m_hang = new Hang(new HangIOSpark());
+        m_feeder = new Feeder(new FeederIOSpark());
 
         sweep = null;
         break;
 
       case SIM:
-        RBSICANBusRegistry.initSim(CANBuses.RIO, CANBuses.DRIVE);
+        RBSICANBusRegistry.initSim(CANBuses.RIO);
 
         m_imu = new Imu(new ImuIOSim());
         m_drivebase = new Drive(m_imu);
         m_flywheel = new Flywheel(new FlywheelIOTalonFX());
         m_intake = new Intake(new IntakeIOSparkFlex());
         m_hang = new Hang(new HangIOSpark());
-
+        m_feeder = new Feeder(new FeederIOSpark());
 
         // ---------------- Vision IOs (robot code) ----------------
         var cams = frc.robot.Constants.Cameras.ALL;
@@ -241,7 +255,7 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
-        RBSICANBusRegistry.initSim(CANBuses.RIO, CANBuses.DRIVE);
+        RBSICANBusRegistry.initSim(CANBuses.RIO);
         m_imu = new Imu(new ImuIOSim() {});
         m_drivebase = new Drive(m_imu);
         m_flywheel = new Flywheel(new FlywheelIO() {});
@@ -249,7 +263,7 @@ public class RobotContainer {
         m_accel = new Accelerometer(m_imu);
         m_intake = new Intake(new IntakeIOSparkFlex());
         m_hang = new Hang(new HangIOSpark());
-
+        m_feeder = new Feeder(new FeederIOSpark());
 
         sweep = null;
         break;
@@ -262,7 +276,7 @@ public class RobotContainer {
     // In addition to the initial battery capacity from the Dashbaord, ``RBSIPowerMonitor`` takes
     // all the non-drivebase subsystems for which you wish to have power monitoring; DO NOT
     // include ``m_drivebase``, as that is automatically monitored.
-    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel);
+    m_power = new RBSIPowerMonitor(batteryCapacity, m_flywheel, m_feeder, m_intake, m_hang);
 
     // Set up the SmartDashboard Auto Chooser based on auto type
     switch (Constants.getAutoType()) {
@@ -309,18 +323,10 @@ public class RobotContainer {
     driveStyle.addDefaultOption("TANK", DriveStyle.TANK);
     driveStyle.addOption("GAMER", DriveStyle.GAMER);
 
-    // Define Auto commands
-    defineAutoCommands();
     // Define SysIs Routines
     definesysIdRoutines();
     // Configure the button and trigger bindings
     configureBindings();
-  }
-
-  /** Use this method to define your Autonomous commands for use with PathPlanner / Choreo */
-  private void defineAutoCommands() {
-
-    // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
   }
 
   /**
@@ -357,38 +363,42 @@ public class RobotContainer {
             () -> -driveStickX.value(),
             () -> -turnStickX.value()));
 
+    SmartDashboard.putString(
+        "drive values",
+        -driveStickY.value() + " " + -driveStickX.value() + " " + -turnStickX.value());
+
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
-    driverController
-        .circle()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    DriveCommands.robotRelativeDrive(
-                        m_drivebase,
-                        () -> -driveStickY.value(),
-                        () -> -driveStickX.value(),
-                        () -> turnStickX.value()),
-                m_drivebase));
+    // driverController
+    //     .circle()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //             () ->
+    //                 DriveCommands.robotRelativeDrive(
+    //                     m_drivebase,
+    //                     () -> -driveStickY.value(),
+    //                     () -> -driveStickX.value(),
+    //                     () -> turnStickX.value()),
+    //             m_drivebase));
 
     // Press Square button -> BRAKE
-    driverController
-        .square()
-        .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
+    // driverController
+    //     .square()
+    //     .whileTrue(Commands.runOnce(() -> m_drivebase.setMotorBrake(true), m_drivebase));
 
     // Press Cross button --> Stop with wheels in X-Lock position
-    driverController.cross().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
+    // driverController.cross().onTrue(Commands.runOnce(m_drivebase::stopWithX, m_drivebase));
 
     // Press Triangle button --> Manually Re-Zero the Gyro
-    driverController
-        .triangle()
-        .onTrue(
-            Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
-                .ignoringDisable(true));
+    // driverController
+    //     .triangle()
+    //     .onTrue(
+    //         Commands.runOnce(m_drivebase::zeroHeadingForAlliance, m_drivebase)
+    //             .ignoringDisable(true));
 
     // Press Left Trigger --> Run the example flywheel
-    driverController
-        .L2()
+    operatorController
+        .R1()
         .whileTrue(
             Commands.startEnd(
                 () -> m_flywheel.runVelocity(flywheelSpeedInput.get()),
@@ -396,38 +406,39 @@ public class RobotContainer {
                 m_flywheel));
 
     // Press LEFT BUMPER --> Drive to a pose 10 feet closer to the BLUE ALLIANCE wall
-    driverController
-        .L1()
-        .whileTrue(
-            Commands.defer(
-                () -> {
-                  // New pose 2 feet closer to BLUE ALLIANCE wall
-                  Pose2d pose =
-                      m_drivebase
-                          .getPose()
-                          .transformBy(
-                              new Transform2d(Units.feetToMeters(-10.0), 0.0, Rotation2d.kZero));
+    // driverController
+    //     .L1()
+    //     .whileTrue(
+    //         Commands.defer(
+    //             () -> {
+    //               // New pose 2 feet closer to BLUE ALLIANCE wall
+    //               Pose2d pose =
+    //                   m_drivebase
+    //                       .getPose()
+    //                       .transformBy(
+    //                           new Transform2d(Units.feetToMeters(-10.0), 0.0, Rotation2d.kZero));
 
-                  // Alternatively, you could define a pose in a separate module and call it here.
-                  //
-                  // Example from 2025 Reefscape:
-                  // --------
-                  // pose = ReefPoses.kBluePoleE;
+    //               // Alternatively, you could define a pose in a separate module and call it
+    // here.
+    //               //
+    //               // Example from 2025 Reefscape:
+    //               // --------
+    //               // pose = ReefPoses.kBluePoleE;
 
-                  return AutopilotCommands.runAutopilot(m_drivebase, pose);
-                },
-                Set.of(m_drivebase)));
-  
-
+    //               return AutopilotCommands.runAutopilot(m_drivebase, pose);
+    //             },
+    //             Set.of(m_drivebase)));
 
     // press triangle to run the intake
     operatorController.triangle().whileTrue(new RunIntake(m_intake));
     operatorController.triangle().whileFalse(new StopIntake(m_intake));
 
-    // TODO: finish this, write commands for this
-    //start hang, or maybe make it so it continues hang while this is pressed
-    //operatorController.cross().whileTrue(new );
+    operatorController.L1().whileTrue(new RunFeeder(m_feeder));
+    operatorController.L1().whileFalse(new RunFeederBackwards(m_feeder));
 
+    // TODO: finish this, write commands for this
+    // start hang, or maybe make it so it continues hang while this is pressed
+    // operatorController.cross().whileTrue(new );
 
     // Press POV LEFT to nudge the robot left
     driverController
@@ -522,6 +533,7 @@ public class RobotContainer {
     return m_drivebase;
   }
 
+  
   /**
    * Set up the SysID routines from AdvantageKit
    *
