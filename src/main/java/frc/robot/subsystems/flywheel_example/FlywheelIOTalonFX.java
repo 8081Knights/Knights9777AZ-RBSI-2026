@@ -49,7 +49,7 @@ public class FlywheelIOTalonFX implements FlywheelIO {
   private final boolean isCTREPro = Constants.getPhoenixPro() == CTREPro.LICENSED;
 
   public FlywheelIOTalonFX() {
-    config.CurrentLimits.SupplyCurrentLimit = PowerConstants.kMotorPortMaxCurrent;
+    config.CurrentLimits.SupplyCurrentLimit = PowerConstants.kFlywheelPortMaxCurrent;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode =
         switch (kFlywheelIdleMode) {
