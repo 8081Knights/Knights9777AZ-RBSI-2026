@@ -133,7 +133,7 @@ public class RobotContainer {
       new LoggedTunableNumber("Battery Amp-Hours", 18.0);
   // EXAMPLE TUNABLE FLYWHEEL SPEED INPUT FROM DASHBOARD
   private final LoggedTunableNumber flywheelSpeedInput =
-      new LoggedTunableNumber("Flywheel Speed", 1500.0);
+      new LoggedTunableNumber("Flywheel Speed", 3000.0);
 
   // Alerts
   private final Alert aprilTagLayoutAlert = new Alert("", AlertType.INFO);
