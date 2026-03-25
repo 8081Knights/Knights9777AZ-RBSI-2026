@@ -334,8 +334,8 @@ public final class Constants {
     public static final double kDriveS = 2.00;
     public static final double kDriveT =
         SwerveConstants.kDriveGearRatio / DCMotor.getKrakenX60Foc(1).KtNMPerAmp;
-    public static final double kSteerP = 4.0;
-    public static final double kSteerD = 0.04;
+    public static final double kSteerP = 60;
+    public static final double kSteerD = 1;
   }
 
   /************************************************************************* */
