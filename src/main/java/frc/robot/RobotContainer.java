@@ -364,20 +364,26 @@ public class RobotContainer {
       default: // Includes case TANK
         driveStickY = driverController::getLeftY;
         driveStickX = driverController::getLeftX;
-        turnStickX = driverController::getRightX;
+        turnStickX = driverController::getRightY;
     }
 
     // SET STANDARD DRIVING AS DEFAULT COMMAND FOR THE DRIVEBASE
     m_drivebase.setDefaultCommand(
-        DriveCommands.fieldRelativeDrive(
+        DriveCommands.robotRelativeDrive(
             m_drivebase,
-            () -> -driveStickY.value(),
-            () -> -driveStickX.value(),
+            () -> driveStickY.value() / 1.5,
+            () -> driveStickX.value() / 1.5,
             () -> -turnStickX.value()));
 
     SmartDashboard.putString(
         "drive values",
-        -driveStickY.value() + " " + -driveStickX.value() + " " + -turnStickX.value());
+        -driveStickY.value() / 3 + " " + driveStickX.value() / 3 + " " + -turnStickX.value());
+
+    GetJoystickValue y = driverController::getRightY;
+    GetJoystickValue x = driverController::getRightX;
+    SmartDashboard.putNumber("right Y", y.value());
+    SmartDashboard.putNumber("right X", x.value());
+    SmartDashboard.putNumber("turn x", -turnStickX.value());
 
     // ** Example Commands -- Remap, remove, or change as desired **
     // Press B button while driving --> ROBOT-CENTRIC
