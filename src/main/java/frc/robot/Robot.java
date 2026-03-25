@@ -17,8 +17,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.util.StatusLogger;
+
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,6 +41,7 @@ import org.littletonrobotics.urcl.URCL;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.VisionSystemSim;
+import static edu.wpi.first.units.Units.Volts;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -72,6 +78,8 @@ public class Robot extends LoggedRobot {
           case 1 -> "Uncommitted changes";
           default -> "Unknown";
         });
+
+        RobotController.setBrownoutVoltage(Volts.of(6));
 
     // Set up data receivers & replay source
     switch (Constants.getMode()) {
