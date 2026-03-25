@@ -57,10 +57,12 @@ public class DriveCommands {
           // Get the Linear Velocity & Omega from inputs
           Translation2d linearVelocity =
               getLinearVelocity(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+          SmartDashboard.putString("omega input", "" + omegaSupplier.getAsDouble());
           double omega = getOmega(omegaSupplier.getAsDouble());
 
-          SmartDashboard.putString(
-              "values", linearVelocity.getX() + " " + linearVelocity.getY() + " " + omega);
+          SmartDashboard.putString("values", linearVelocity.getX() + " " + linearVelocity.getY());
+
+          SmartDashboard.putString("turn: ", "" + +omega);
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds =
