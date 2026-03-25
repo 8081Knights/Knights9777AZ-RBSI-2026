@@ -410,12 +410,19 @@ public class RobotContainer {
 
     // Press Left Trigger --> Run the example flywheel
     operatorController
-        .R1()
+        .triangle()
         .whileTrue(
-            Commands.startEnd(
-                () -> m_flywheel.runVelocity(flywheelSpeedInput.get()),
-                m_flywheel::stop,
-                m_flywheel));
+            Commands.startEnd(() -> m_flywheel.runVelocity(3000), m_flywheel::stop, m_flywheel));
+
+    operatorController
+        .square()
+        .whileTrue(
+            Commands.startEnd(() -> m_flywheel.runVelocity(3500), m_flywheel::stop, m_flywheel));
+
+    operatorController
+        .circle()
+        .whileTrue(
+            Commands.startEnd(() -> m_flywheel.runVelocity(1000), m_flywheel::stop, m_flywheel));
 
     // Press LEFT BUMPER --> Drive to a pose 10 feet closer to the BLUE ALLIANCE wall
     // driverController
@@ -442,8 +449,8 @@ public class RobotContainer {
     //             Set.of(m_drivebase)));
 
     // press triangle to run the intake
-    operatorController.triangle().whileTrue(new RunIntake(m_intake));
-    operatorController.triangle().whileFalse(new StopIntake(m_intake));
+    operatorController.R1().whileTrue(new RunIntake(m_intake));
+    operatorController.R1().whileFalse(new StopIntake(m_intake));
 
     operatorController.L1().whileTrue(new RunFeeder(m_feeder));
     operatorController.L1().whileFalse(new RunFeederBackwards(m_feeder));
