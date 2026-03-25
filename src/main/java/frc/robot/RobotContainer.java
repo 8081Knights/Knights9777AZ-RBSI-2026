@@ -176,6 +176,16 @@ public class RobotContainer {
     NamedCommands.registerCommand("run Feeder", new RunFeeder(m_feeder));
     NamedCommands.registerCommand("run Feeder Backwards", new RunFeederBackwards(m_feeder));
 
+    NamedCommands.registerCommand(
+        "run Flywheel Fast",
+        Commands.startEnd(() -> m_flywheel.runVelocity(3500), m_flywheel::stop, m_flywheel));
+
+    NamedCommands.registerCommand(
+        "run Flywheel Slow",
+        Commands.startEnd(() -> m_flywheel.runVelocity(3000), m_flywheel::stop, m_flywheel));
+
+    NamedCommands.registerCommand("stop Flywheel", Commands.runOnce(m_flywheel::stop, m_flywheel));
+
     // NamedCommands.registerCommand("Zero", Commands.runOnce(() -> m_drivebase.zero()));
   }
 
@@ -189,7 +199,6 @@ public class RobotContainer {
     switch (Constants.getMode()) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-
         // Register the CANBus
         RBSICANBusRegistry.initReal(CANBuses.RIO);
 
@@ -207,6 +216,9 @@ public class RobotContainer {
         m_feeder = new Feeder(new FeederIOSpark());
 
         sweep = null;
+
+        defineAutoCommands();
+
         break;
 
       case SIM:
@@ -533,7 +545,6 @@ public class RobotContainer {
     return m_drivebase;
   }
 
-  
   /**
    * Set up the SysID routines from AdvantageKit
    *
